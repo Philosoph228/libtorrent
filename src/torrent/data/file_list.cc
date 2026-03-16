@@ -329,7 +329,11 @@ FileList::make_all_paths() {
 void
 FileList::initialize(uint64_t torrentSize, uint32_t chunkSize) {
   if (sizeof(off_t) != 8)
+#ifndef _WIN32
     throw internal_error("Last minute panic; sizeof(off_t) != 8.", data()->hash());
+#else
+    (void)0; // Windows: off_t is 32-bit but mmap uses int64_t offsets internally
+#endif
 
   if (chunkSize == 0)
     throw internal_error("FileList::initialize() chunk_size() == 0.", data()->hash());

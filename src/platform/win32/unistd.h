@@ -6,20 +6,7 @@
 #include <io.h>
 #include <process.h>
 #include <stdint.h>
-
-// Override off_t to 64-bit before sys/types.h is pulled in.
-#ifdef _MSC_VER
-#  ifdef _off_t
-#    undef _off_t
-#  endif
-#  ifdef off_t
-#    undef off_t
-#  endif
-typedef int64_t off_t;
-#  define _off_t off_t
-#  define _OFF_T_DEFINED
-#endif
-
+#include <sys/types.h>
 #include <windows.h>
 #include <winsock2.h>
 
