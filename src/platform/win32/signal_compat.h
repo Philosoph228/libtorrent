@@ -56,7 +56,14 @@ typedef struct {
 #define SIGUSR1  10
 #endif
 
-// sigset_t and sigemptyset
+// Ensure NSIG is large enough to cover all signal numbers we define above.
+// MSVC signal.h may define NSIG as 23, which is too small for SIGWINCH=28.
+#ifndef NSIG
+#define NSIG 32
+#elif NSIG < 32
+#undef NSIG
+#define NSIG 32
+#endif
 typedef unsigned int sigset_t;
 static inline int sigemptyset(sigset_t* set) { *set = 0; return 0; }
 static inline int sigaddset(sigset_t* set, int sig) { (void)set; (void)sig; return 0; }

@@ -27,6 +27,20 @@
 #include <sys/stat.h>
 #include <direct.h>
 
+// Auto-initialize Winsock on Windows so callers don't need to call WSAStartup.
+// This runs before main() via a static constructor.
+namespace {
+struct WinsockInit {
+  WinsockInit() {
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2, 2), &wsa);
+  }
+  ~WinsockInit() {
+    WSACleanup();
+  }
+} _winsock_init;
+} // namespace
+
 #ifndef ssize_t
 typedef SSIZE_T ssize_t;
 #endif
