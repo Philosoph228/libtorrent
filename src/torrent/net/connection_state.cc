@@ -41,8 +41,7 @@ connection_state_select_next_family(ConnectionState& state) {
   // If last connection failed, try the other family
 
   // If both families have failed, wait before trying again.
-
-
+  return AF_UNSPEC;
 }
 
 } // namespace torrent::net

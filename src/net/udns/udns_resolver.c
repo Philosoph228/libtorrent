@@ -801,7 +801,7 @@ dns_send_this(struct dns_ctx *ctx, struct dns_query *q,
 
   /* send the query */
   tries = 10;
-  while (sendto(ctx->dnsc_udpsock, (void*)ctx->dnsc_pbuf, qlen, 0,
+  while (sendto(ctx->dnsc_udpsock, (const char*)ctx->dnsc_pbuf, qlen, 0,
                 &ctx->dnsc_serv[servi].sa, ctx->dnsc_salen) < 0) {
     /*XXX just ignore the sendto() error for now and try again.
      * In the future, it may be possible to retrieve the error code
@@ -980,7 +980,7 @@ void dns_ioevent(struct dns_ctx *ctx, time_t now) {
 again: /* receive the reply */
 
   slen = sizeof(sns);
-  r = recvfrom(ctx->dnsc_udpsock, (void*)pbuf, ctx->dnsc_udpbuf,
+  r = recvfrom(ctx->dnsc_udpsock, (char*)pbuf, ctx->dnsc_udpbuf,
                MSG_DONTWAIT, &sns.sa, &slen);
   if (r < 0) {
     /*XXX just ignore recvfrom() errors for now.

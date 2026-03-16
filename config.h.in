@@ -4,6 +4,10 @@
 
 #define HAVE_CONFIG_H 1
 
+#if defined(_WIN32)
+#include "platform/win32/compat.h"
+#endif
+
 #cmakedefine HAVE_BACKTRACE 1
 #cmakedefine SUPPORT_ATTRIBUTE_VISIBILITY 1
 #cmakedefine LT_INSTRUMENTATION 1
@@ -31,6 +35,7 @@
 
 #define PEER_NAME "@PEER_NAME@"
 #define PEER_VERSION "@PEER_VERSION@"
+#define VERSION "@PROJECT_VERSION@"
 
 #define LT_SMP_CACHE_BYTES @LT_SMP_CACHE_BYTES@
 #define DEFAULT_ADDRESS_SPACE_SIZE @DEFAULT_ADDRESS_SPACE_SIZE@

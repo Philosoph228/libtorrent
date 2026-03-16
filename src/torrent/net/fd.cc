@@ -52,7 +52,7 @@ int fd__close(int fildes) { return ::close(fildes); }
 int fd__connect(int socket, const sockaddr *address, socklen_t address_len) { return ::connect(socket, address, address_len); }
 int fd__fcntl_int(int fildes, int cmd, int arg) { return ::fcntl(fildes, cmd, arg); }
 int fd__listen(int socket, int backlog) { return ::listen(socket, backlog); }
-int fd__setsockopt_int(int socket, int level, int option_name, int option_value) { return ::setsockopt(socket, level, option_name, &option_value, sizeof(int)); }
+int fd__setsockopt_int(int socket, int level, int option_name, int option_value) { return ::setsockopt(socket, level, option_name, reinterpret_cast<const char*>(&option_value), sizeof(int)); }
 int fd__socket(int domain, int type, int protocol) { return ::socket(domain, type, protocol); }
 
 int
@@ -338,7 +338,7 @@ bool
 fd_get_socket_error(int fd, int* value) {
   socklen_t length = sizeof(int);
 
-  if (getsockopt(fd, SOL_SOCKET, SO_ERROR, value, &length) == -1) {
+  if (getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(value), &length) == -1) {
     LT_LOG_FD_ERROR("fd_get_socket_error() failed");
     return false;
   }
@@ -370,7 +370,7 @@ bool
 fd_get_type(int fd, int* value) {
   socklen_t length = sizeof(int);
 
-  if (getsockopt(fd, SOL_SOCKET, SO_TYPE, value, &length) == -1) {
+  if (getsockopt(fd, SOL_SOCKET, SO_TYPE, reinterpret_cast<char*>(value), &length) == -1) {
     LT_LOG_FD_ERROR("fd_get_type() failed");
     return false;
   }

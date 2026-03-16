@@ -318,7 +318,11 @@ Sequence
 generate_random(size_t length) {
   std::random_device rd;
   std::mt19937 mt(rd());
+#if defined(_MSC_VER)
+  using bytes_randomizer = std::independent_bits_engine<std::mt19937, CHAR_BIT, unsigned int>;
+#else
   using bytes_randomizer = std::independent_bits_engine<std::mt19937, CHAR_BIT, uint8_t>;
+#endif
   bytes_randomizer bytes(mt);
   Sequence s;
   s.reserve(length);

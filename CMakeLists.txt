@@ -76,39 +76,47 @@ check_cxx_source_compiles(
   USE_POSIX_FADVISE
 )
 
-check_cxx_source_compiles(
-  "#include <sys/mman.h>\nint main() { char test[1024]; return madvise(test, sizeof(test), MADV_NORMAL); }"
-  USE_MADVISE
-)
-
-check_cxx_source_compiles(
-  "#include <sys/mman.h>\n#include <unistd.h>\nint main() { mincore((char*)0, 0, (unsigned char*)0); return 0; }"
-  HAVE_MINCORE_UNSIGNED
-)
-
-if(HAVE_MINCORE_UNSIGNED)
-  set(USE_MINCORE 1)
-  set(USE_MINCORE_UNSIGNED 1)
+if(WIN32)
+  set(USE_MADVISE 0)
+  set(USE_MINCORE 0)
+  set(USE_MINCORE_UNSIGNED 0)
 else()
   check_cxx_source_compiles(
-    "#include <sys/mman.h>\n#include <unistd.h>\nint main() { mincore((char*)0, 0, (char*)0); return 0; }"
-    HAVE_MINCORE_SIGNED
+    "#include <sys/mman.h>\nint main() { char test[1024]; return madvise(test, sizeof(test), MADV_NORMAL); }"
+    USE_MADVISE
   )
-  if(HAVE_MINCORE_SIGNED)
+
+  check_cxx_source_compiles(
+    "#include <sys/mman.h>\n#include <unistd.h>\nint main() { mincore((char*)0, 0, (unsigned char*)0); return 0; }"
+    HAVE_MINCORE_UNSIGNED
+  )
+
+  if(HAVE_MINCORE_UNSIGNED)
     set(USE_MINCORE 1)
+    set(USE_MINCORE_UNSIGNED 1)
+  else()
+    check_cxx_source_compiles(
+      "#include <sys/mman.h>\n#include <unistd.h>\nint main() { mincore((char*)0, 0, (char*)0); return 0; }"
+      HAVE_MINCORE_SIGNED
+    )
+    if(HAVE_MINCORE_SIGNED)
+      set(USE_MINCORE 1)
+    endif()
   endif()
 endif()
 
-set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
-check_cxx_source_compiles(
-  "#include <pthread.h>\nint main() { pthread_t t; pthread_setname_np(t, \"foo\"); return 0; }"
-  HAS_PTHREAD_SETNAME_NP_GENERIC
-)
-check_cxx_source_compiles(
-  "#include <pthread.h>\nint main() { pthread_setname_np(\"foo\"); return 0; }"
-  HAS_PTHREAD_SETNAME_NP_DARWIN
-)
-set(CMAKE_REQUIRED_LIBRARIES "")
+if(NOT WIN32)
+  set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
+  check_cxx_source_compiles(
+    "#include <pthread.h>\nint main() { pthread_t t; pthread_setname_np(t, \"foo\"); return 0; }"
+    HAS_PTHREAD_SETNAME_NP_GENERIC
+  )
+  check_cxx_source_compiles(
+    "#include <pthread.h>\nint main() { pthread_setname_np(\"foo\"); return 0; }"
+    HAS_PTHREAD_SETNAME_NP_DARWIN
+  )
+  set(CMAKE_REQUIRED_LIBRARIES "")
+endif()
 
 check_cxx_compiler_flag("-fvisibility=hidden" SUPPORT_ATTRIBUTE_VISIBILITY)
 
@@ -217,10 +225,17 @@ endif()
 target_include_directories(torrent
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/torrent>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+if(WIN32)
+  target_include_directories(torrent PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/platform/win32>
+  )
+endif()
 
 if(UNIX AND NOT WIN32)
   target_compile_definitions(torrent PUBLIC _FILE_OFFSET_BITS=64)

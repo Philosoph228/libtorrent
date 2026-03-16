@@ -40,6 +40,9 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
 
 namespace rak {
 
@@ -160,8 +163,15 @@ template<typename T>
 inline int popcount_wrapper(T t) {
 #if USE_BUILTIN_POPCOUNT
   return __builtin_popcountll(t);
+#elif defined(_MSC_VER)
+  unsigned long long value = static_cast<unsigned long long>(t);
+#if defined(_M_X64) || defined(_M_ARM64)
+  return static_cast<int>(__popcnt64(value));
 #else
-#error __builtin_popcount not found.
+  return static_cast<int>(__popcnt(static_cast<unsigned long>(value & 0xFFFFFFFFULL)) +
+                          __popcnt(static_cast<unsigned long>(value >> 32)));
+#endif
+#else
   unsigned int count = 0;
   
   while (t) {

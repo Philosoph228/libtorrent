@@ -67,7 +67,7 @@ typedef DWORD (WINAPI *GetAdaptersAddressesFunc)(
   PULONG pOutBufLen);
 
 static int dns_initns_iphlpapi(struct dns_ctx *ctx) {
-  HANDLE h_iphlpapi;
+  HMODULE h_iphlpapi;
   GetAdaptersAddressesFunc pfnGetAdAddrs;
   PIP_ADAPTER_ADDRESSES pAddr, pAddrBuf;
   PIP_ADAPTER_DNS_SERVER_ADDRESS pDnsAddr;
@@ -84,7 +84,7 @@ static int dns_initns_iphlpapi(struct dns_ctx *ctx) {
   ulOutBufLen = 0;
   dwRetVal = pfnGetAdAddrs(AF_UNSPEC, 0, NULL, NULL, &ulOutBufLen);
   if (dwRetVal != ERROR_BUFFER_OVERFLOW) goto freelib;
-  pAddrBuf = malloc(ulOutBufLen);
+  pAddrBuf = (PIP_ADAPTER_ADDRESSES)malloc(ulOutBufLen);
   if (!pAddrBuf) goto freelib;
   dwRetVal = pfnGetAdAddrs(AF_UNSPEC, 0, NULL, pAddrBuf, &ulOutBufLen);
   if (dwRetVal != ERROR_SUCCESS) goto freemem;

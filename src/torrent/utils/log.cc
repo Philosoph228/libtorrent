@@ -154,8 +154,10 @@ log_group::internal_print(const HashString* hash, const char* subsystem, const v
 
   auto lock = std::scoped_lock(log_mutex);
 
-  std::for_each(m_first, m_last, [this, &buffer, first](const auto& elem) {
-    return elem(buffer, std::distance(buffer, first), std::distance(log_groups.begin(), this));
+  auto group_index = static_cast<int>(this - log_groups.data());
+
+  std::for_each(m_first, m_last, [this, &buffer, first, group_index](const auto& elem) {
+    return elem(buffer, std::distance(buffer, first), group_index);
   });
   if (dump_data != NULL) {
     std::for_each(m_first, m_last, [dump_data, dump_size](const auto& log) {
