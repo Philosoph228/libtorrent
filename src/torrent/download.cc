@@ -165,8 +165,14 @@ Download::hash_check(bool try_quick) {
     for (auto range : m_ptr->hash_checker()->hashing_ranges())
       bitfield->unset_range(range.first, range.second);
 
-    // TODO: Consider adding a sanity check above instead, and print out the files (size+range) of
-    // the invalid marked bit.
+    // If hashing_ranges is empty (all files had matching mtimes), we still need
+    // to do a full hash check to verify the data is intact. Without this, the
+    // hash check completes instantly with m_outstanding=0 and the download
+    // never actually verifies any chunks.
+    if (m_ptr->hash_checker()->hashing_ranges().empty()) {
+      m_ptr->hash_checker()->hashing_ranges().insert(0, m_ptr->main()->file_list()->size_chunks());
+      bitfield->unset_all();
+    }
   }
 
   m_ptr->main()->file_list()->update_completed();
