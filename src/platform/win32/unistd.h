@@ -43,13 +43,15 @@ static inline int pipe(int fds[2]) {
   return _pipe(fds, 512, O_BINARY);
 }
 
-static inline ssize_t read(int fd, void* buf, size_t count) {
-  return _read(fd, buf, (unsigned int)count);
-}
+// Map write -> _write to avoid ambiguity with CRT's int write(int,const void*,unsigned int)
+#ifndef write
+#define write _write
+#endif
 
-static inline ssize_t write(int fd, const void* buf, size_t count) {
-  return _write(fd, buf, (unsigned int)count);
-}
+// Map read -> _read to avoid ambiguity with CRT's int read(int,void*,unsigned int)
+#ifndef read
+#define read _read
+#endif
 
 static inline int usleep(unsigned int usec) {
   Sleep((usec + 999) / 1000);

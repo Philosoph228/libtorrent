@@ -95,6 +95,14 @@ static inline int mkdir(const char* path, mode_t mode) {
 #define O_LARGEFILE 0
 #endif
 
+// access() flags
+#ifndef F_OK
+#define F_OK 0
+#define R_OK 4
+#define W_OK 2
+#define X_OK 1
+#endif
+
 #ifndef F_GETFL
 #define F_GETFL 3
 #endif
@@ -123,6 +131,23 @@ static inline int mkdir(const char* path, mode_t mode) {
 #ifndef __attribute__
 #define __attribute__(x)
 #endif
+
+#ifndef MSG_NOSIGNAL
+#define MSG_NOSIGNAL 0
+#endif
+
+// fdatasync: use _commit() on Windows (flushes file buffers)
+static inline int fdatasync(int fd) {
+  return _commit(fd);
+}
+
+// symlink: requires developer mode or admin on Windows
+static inline int symlink(const char* target, const char* linkpath) {
+  if (CreateSymbolicLinkA(linkpath, target, 0))
+    return 0;
+  errno = EPERM;
+  return -1;
+}
 
 static inline long random(void) { return rand(); }
 static inline void srandom(unsigned int seed) { srand(seed); }
@@ -168,5 +193,127 @@ static inline int lt_fcntl(int fd, int cmd, ...) {
 #ifndef fcntl
 #define fcntl lt_fcntl
 #endif
+
+// POSIX signal extensions (sigaction, siginfo_t, etc.)
+#include "signal_compat.h"
+
+// PDCursesMod uses resize_term instead of resizeterm
+#ifndef resizeterm
+#define resizeterm resize_term
+#endif
+
+// set_escdelay: ncurses extension not in PDCursesMod; no-op on Windows
+#ifndef set_escdelay
+static inline int set_escdelay(int) { return 0; }
+#endif
+
+// MSVC does not have __builtin_popcount; use intrinsic instead
+#ifdef _MSC_VER
+#include <intrin.h>
+#define __builtin_popcount(x)   (int)__popcnt((unsigned int)(x))
+#define __builtin_popcountl(x)  (int)__popcnt((unsigned long)(x))
+#define __builtin_popcountll(x) (int)__popcnt64((unsigned long long)(x))
+#define USE_BUILTIN_POPCOUNT 1
+
+// POSIX wide-char display width functions
+#include <cwchar>
+static inline int wcwidth(wchar_t c) {
+  if (c == 0) return 0;
+  return 1;
+}
+static inline int wcswidth(const wchar_t* s, size_t n) {
+  int w = 0;
+  for (size_t i = 0; i < n && s[i]; ++i) w += wcwidth(s[i]);
+  return w;
+}
+
+// POSIX localtime_r -> MSVC localtime_s (reversed argument order)
+#include <ctime>
+static inline struct tm* localtime_r(const time_t* timep, struct tm* result) {
+  return (localtime_s(result, timep) == 0) ? result : nullptr;
+}
+static inline struct tm* gmtime_r(const time_t* timep, struct tm* result) {
+  return (gmtime_s(result, timep) == 0) ? result : nullptr;
+}
+
+// POSIX process functions via Win32
+#include <process.h>
+#include <io.h>
+
+// dup2
+static inline int dup2(int oldfd, int newfd) {
+  return _dup2(oldfd, newfd);
+}
+
+// getpid
+static inline int getpid(void) {
+  return (int)GetCurrentProcessId();
+}
+
+// getppid: no parent process concept on Windows, return 0
+static inline int getppid(void) {
+  return 0;
+}
+
+// srand48/drand48: not in MSVC CRT
+static inline void srand48(long seed) { srand((unsigned int)seed); }
+static inline double drand48(void) { return (double)rand() / ((double)RAND_MAX + 1.0); }
+static inline long lrand48(void) { return rand(); }
+
+// pid_t must be defined before kill() and fork()
+#ifndef _LT_PID_T_DEFINED
+typedef DWORD pid_t;
+#define _LT_PID_T_DEFINED
+#endif
+
+// kill: only signal 0 (existence check) is supported on Windows
+static inline int kill(pid_t pid, int sig) {
+  if (sig == 0) {
+    HANDLE h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, (DWORD)pid);
+    if (h == NULL) { errno = ESRCH; return -1; }
+    DWORD code = 0;
+    GetExitCodeProcess(h, &code);
+    CloseHandle(h);
+    if (code != STILL_ACTIVE) { errno = ESRCH; return -1; }
+    return 0;
+  }
+  errno = EINVAL;
+  return -1;
+}
+
+// fork/execvp: implement via _spawnvp
+// Since Windows has no fork, exec_file.cc's fork()+execvp() pattern is
+// handled by making fork() return 0 (child branch) and execvp() spawn+exit.
+
+static inline pid_t fork() {
+  return 0;
+}
+
+static inline int execvp(const char* file, char* const argv[]) {
+  intptr_t ret = _spawnvp(_P_WAIT, file, (const char* const*)argv);
+  ExitProcess((UINT)ret);
+  return -1;
+}
+
+#ifndef _exit
+static inline void _exit(int code) {
+  ExitProcess((UINT)code);
+}
+#endif
+
+// strsignal: not in MSVC CRT
+static inline const char* strsignal(int sig) {
+  switch (sig) {
+  case SIGINT:  return "Interrupt";
+  case SIGTERM: return "Terminated";
+  case SIGABRT: return "Aborted";
+  case SIGFPE:  return "Floating point exception";
+  case SIGILL:  return "Illegal instruction";
+  case SIGSEGV: return "Segmentation fault";
+  default:      return "Unknown signal";
+  }
+}
+
+#endif // _MSC_VER
 
 #endif // _WIN32
