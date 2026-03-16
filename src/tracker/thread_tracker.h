@@ -42,7 +42,7 @@ protected:
   std::chrono::microseconds next_timeout() override;
 
 private:
-  ThreadTracker() = default;
+  ThreadTracker();
 
   // void                process_send_events();
 

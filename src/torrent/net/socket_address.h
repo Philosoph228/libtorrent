@@ -7,97 +7,97 @@
 
 namespace torrent {
 
-bool sa_is_unspec(const sockaddr* sa) LIBTORRENT_EXPORT;
-bool sa_is_inet(const sockaddr* sa) LIBTORRENT_EXPORT;
-bool sa_is_inet6(const sockaddr* sa) LIBTORRENT_EXPORT;
-bool sa_is_inet_inet6(const sockaddr* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool sa_is_unspec(const sockaddr* sa);
+LIBTORRENT_EXPORT bool sa_is_inet(const sockaddr* sa);
+LIBTORRENT_EXPORT bool sa_is_inet6(const sockaddr* sa);
+LIBTORRENT_EXPORT bool sa_is_inet_inet6(const sockaddr* sa);
 
-bool sa_is_any(const sockaddr* sa) LIBTORRENT_EXPORT;
-bool sin_is_any(const sockaddr_in* sa) LIBTORRENT_EXPORT;
-bool sin6_is_any(const sockaddr_in6* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool sa_is_any(const sockaddr* sa);
+LIBTORRENT_EXPORT bool sin_is_any(const sockaddr_in* sa);
+LIBTORRENT_EXPORT bool sin6_is_any(const sockaddr_in6* sa);
 
-bool sa_is_broadcast(const sockaddr* sa) LIBTORRENT_EXPORT;
-bool sin_is_broadcast(const sockaddr_in* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool sa_is_broadcast(const sockaddr* sa);
+LIBTORRENT_EXPORT bool sin_is_broadcast(const sockaddr_in* sa);
 
-bool sa_is_v4mapped(const sockaddr* sa) LIBTORRENT_EXPORT;
-bool sin6_is_v4mapped(const sockaddr_in6* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool sa_is_v4mapped(const sockaddr* sa);
+LIBTORRENT_EXPORT bool sin6_is_v4mapped(const sockaddr_in6* sa);
 
-bool sa_is_port_any(const sockaddr* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool sa_is_port_any(const sockaddr* sa);
 
-size_t          sa_length(const sockaddr* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT size_t          sa_length(const sockaddr* sa);
 
-void            sa_free(const sockaddr* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void            sa_free(const sockaddr* sa);
 
-sa_unique_ptr   sa_make_unspec() LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_make_inet() LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_make_inet_any() LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_make_inet_h(uint32_t addr, uint16_t port) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_make_inet_n(uint32_t addr, uint16_t port) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_make_inet6() LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_make_inet6_any() LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_make_unix(const std::string& pathname) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT sa_unique_ptr   sa_make_unspec();
+LIBTORRENT_EXPORT sa_unique_ptr   sa_make_inet();
+LIBTORRENT_EXPORT sa_unique_ptr   sa_make_inet_any();
+LIBTORRENT_EXPORT sa_unique_ptr   sa_make_inet_h(uint32_t addr, uint16_t port);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_make_inet_n(uint32_t addr, uint16_t port);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_make_inet6();
+LIBTORRENT_EXPORT sa_unique_ptr   sa_make_inet6_any();
+LIBTORRENT_EXPORT sa_unique_ptr   sa_make_unix(const std::string& pathname);
 
-sa_unique_ptr   sa_convert(const sockaddr* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT sa_unique_ptr   sa_convert(const sockaddr* sa);
 
-sa_unique_ptr   sa_copy(const sockaddr* sa) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_copy_in(const sockaddr_in* sa) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_copy_in6(const sockaddr_in6* sa) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_copy_addr(const sockaddr* sa, uint16_t port = 0) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_copy_addr_in(const sockaddr_in* sa, uint16_t port = 0) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_copy_addr_in6(const sockaddr_in6* sa, uint16_t port = 0) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_copy_unmapped(const sockaddr* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT sa_unique_ptr   sa_copy(const sockaddr* sa);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_copy_in(const sockaddr_in* sa);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_copy_in6(const sockaddr_in6* sa);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_copy_addr(const sockaddr* sa, uint16_t port = 0);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_copy_addr_in(const sockaddr_in* sa, uint16_t port = 0);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_copy_addr_in6(const sockaddr_in6* sa, uint16_t port = 0);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_copy_unmapped(const sockaddr* sa);
 
-sin_unique_ptr  sin_copy(const sockaddr_in* sa) LIBTORRENT_EXPORT;
-sin6_unique_ptr sin6_copy(const sockaddr_in6* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT sin_unique_ptr  sin_copy(const sockaddr_in* sa);
+LIBTORRENT_EXPORT sin6_unique_ptr sin6_copy(const sockaddr_in6* sa);
 
-sin_unique_ptr  sin_make() LIBTORRENT_EXPORT;
-sin_unique_ptr  sin_make_any() LIBTORRENT_EXPORT;
-sin_unique_ptr  sin_make_h(uint32_t addr, uint16_t port) LIBTORRENT_EXPORT;
-sin_unique_ptr  sin_make_n(uint32_t addr, uint16_t port) LIBTORRENT_EXPORT;
-sin6_unique_ptr sin6_make() LIBTORRENT_EXPORT;
-sin6_unique_ptr sin6_make_any() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT sin_unique_ptr  sin_make();
+LIBTORRENT_EXPORT sin_unique_ptr  sin_make_any();
+LIBTORRENT_EXPORT sin_unique_ptr  sin_make_h(uint32_t addr, uint16_t port);
+LIBTORRENT_EXPORT sin_unique_ptr  sin_make_n(uint32_t addr, uint16_t port);
+LIBTORRENT_EXPORT sin6_unique_ptr sin6_make();
+LIBTORRENT_EXPORT sin6_unique_ptr sin6_make_any();
 
-sa_unique_ptr   sa_from_v4mapped(const sockaddr* sa) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_to_v4mapped(const sockaddr* sa) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_from_v4mapped_in6(const sockaddr_in6* sin6) LIBTORRENT_EXPORT;
-sa_unique_ptr   sa_to_v4mapped_in(const sockaddr_in* sin) LIBTORRENT_EXPORT;
-sin_unique_ptr  sin_from_v4mapped_in6(const sockaddr_in6* sin6) LIBTORRENT_EXPORT;
-sin6_unique_ptr sin6_to_v4mapped_in(const sockaddr_in* sin) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT sa_unique_ptr   sa_from_v4mapped(const sockaddr* sa);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_to_v4mapped(const sockaddr* sa);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_from_v4mapped_in6(const sockaddr_in6* sin6);
+LIBTORRENT_EXPORT sa_unique_ptr   sa_to_v4mapped_in(const sockaddr_in* sin);
+LIBTORRENT_EXPORT sin_unique_ptr  sin_from_v4mapped_in6(const sockaddr_in6* sin6);
+LIBTORRENT_EXPORT sin6_unique_ptr sin6_to_v4mapped_in(const sockaddr_in* sin);
 
-sa_unique_ptr     sa_from_in(sin_unique_ptr sinp) LIBTORRENT_EXPORT;
-c_sa_unique_ptr   sa_from_in(c_sin_unique_ptr sinp) LIBTORRENT_EXPORT;
-sa_unique_ptr     sa_from_in6(sin6_unique_ptr sin6p) LIBTORRENT_EXPORT;
-c_sa_unique_ptr   sa_from_in6(c_sin6_unique_ptr sin6p) LIBTORRENT_EXPORT;
-sin_unique_ptr    sin_from_sa(sa_unique_ptr sap) LIBTORRENT_EXPORT;
-sin6_unique_ptr   sin6_from_sa(sa_unique_ptr sap) LIBTORRENT_EXPORT;
-c_sin_unique_ptr  sin_from_c_sa(c_sa_unique_ptr sap) LIBTORRENT_EXPORT;
-c_sin6_unique_ptr sin6_from_c_sa(c_sa_unique_ptr sap) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT sa_unique_ptr     sa_from_in(sin_unique_ptr sinp);
+LIBTORRENT_EXPORT c_sa_unique_ptr   sa_from_in(c_sin_unique_ptr sinp);
+LIBTORRENT_EXPORT sa_unique_ptr     sa_from_in6(sin6_unique_ptr sin6p);
+LIBTORRENT_EXPORT c_sa_unique_ptr   sa_from_in6(c_sin6_unique_ptr sin6p);
+LIBTORRENT_EXPORT sin_unique_ptr    sin_from_sa(sa_unique_ptr sap);
+LIBTORRENT_EXPORT sin6_unique_ptr   sin6_from_sa(sa_unique_ptr sap);
+LIBTORRENT_EXPORT c_sin_unique_ptr  sin_from_c_sa(c_sa_unique_ptr sap);
+LIBTORRENT_EXPORT c_sin6_unique_ptr sin6_from_c_sa(c_sa_unique_ptr sap);
 
-void        sa_clear_inet6(sockaddr_in6* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void        sa_clear_inet6(sockaddr_in6* sa);
 
-uint16_t    sa_port(const sockaddr* sa) LIBTORRENT_EXPORT;
-void        sa_set_port(sockaddr* sa, uint16_t port) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT uint16_t    sa_port(const sockaddr* sa);
+LIBTORRENT_EXPORT void        sa_set_port(sockaddr* sa, uint16_t port);
 
-bool        sa_equal(const sockaddr* lhs, const sockaddr* rhs) LIBTORRENT_EXPORT;
-bool        sin_equal(const sockaddr_in* lhs, const sockaddr_in* rhs) LIBTORRENT_EXPORT;
-bool        sin6_equal(const sockaddr_in6* lhs, const sockaddr_in6* rhs) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool        sa_equal(const sockaddr* lhs, const sockaddr* rhs);
+LIBTORRENT_EXPORT bool        sin_equal(const sockaddr_in* lhs, const sockaddr_in* rhs);
+LIBTORRENT_EXPORT bool        sin6_equal(const sockaddr_in6* lhs, const sockaddr_in6* rhs);
 
-bool        sa_equal_addr(const sockaddr* lhs, const sockaddr* rhs) LIBTORRENT_EXPORT;
-bool        sin_equal_addr(const sockaddr_in* lhs, const sockaddr_in* rhs) LIBTORRENT_EXPORT;
-bool        sin6_equal_addr(const sockaddr_in6* lhs, const sockaddr_in6* rhs) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool        sa_equal_addr(const sockaddr* lhs, const sockaddr* rhs);
+LIBTORRENT_EXPORT bool        sin_equal_addr(const sockaddr_in* lhs, const sockaddr_in* rhs);
+LIBTORRENT_EXPORT bool        sin6_equal_addr(const sockaddr_in6* lhs, const sockaddr_in6* rhs);
 
-bool        sa_less(const sockaddr* lhs, const sockaddr* rhs) LIBTORRENT_EXPORT;
-bool        sa_less_addr(const sockaddr* lhs, const sockaddr* rhs) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool        sa_less(const sockaddr* lhs, const sockaddr* rhs);
+LIBTORRENT_EXPORT bool        sa_less_addr(const sockaddr* lhs, const sockaddr* rhs);
 
-std::string sa_addr_str(const sockaddr* sa) LIBTORRENT_EXPORT;
-std::string sin_addr_str(const sockaddr_in* sa) LIBTORRENT_EXPORT;
-std::string sin6_addr_str(const sockaddr_in6* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT std::string sa_addr_str(const sockaddr* sa);
+LIBTORRENT_EXPORT std::string sin_addr_str(const sockaddr_in* sa);
+LIBTORRENT_EXPORT std::string sin6_addr_str(const sockaddr_in6* sa);
 
-std::string sa_pretty_str(const sockaddr* sa) LIBTORRENT_EXPORT;
-std::string sin_pretty_str(const sockaddr_in* sa) LIBTORRENT_EXPORT;
-std::string sin_pretty_or_empty(const sockaddr_in* sa) LIBTORRENT_EXPORT;
-std::string sin6_pretty_str(const sockaddr_in6* sa) LIBTORRENT_EXPORT;
-std::string sin6_pretty_or_empty(const sockaddr_in6* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT std::string sa_pretty_str(const sockaddr* sa);
+LIBTORRENT_EXPORT std::string sin_pretty_str(const sockaddr_in* sa);
+LIBTORRENT_EXPORT std::string sin_pretty_or_empty(const sockaddr_in* sa);
+LIBTORRENT_EXPORT std::string sin6_pretty_str(const sockaddr_in6* sa);
+LIBTORRENT_EXPORT std::string sin6_pretty_or_empty(const sockaddr_in6* sa);
 
 c_sa_shared_ptr sa_lookup_address(const std::string& address_str, int family);
 
@@ -105,9 +105,9 @@ c_sa_shared_ptr sa_lookup_address(const std::string& address_str, int family);
 // Other types:
 //
 
-sa_inet_union sa_inet_union_from_sa(const sockaddr* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT sa_inet_union sa_inet_union_from_sa(const sockaddr* sa);
 
-bool fd_sap_equal(const fd_sap_tuple& lhs, const fd_sap_tuple& rhs) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool fd_sap_equal(const fd_sap_tuple& lhs, const fd_sap_tuple& rhs);
 
 //
 // Safe conversion from unique_ptr arguments:

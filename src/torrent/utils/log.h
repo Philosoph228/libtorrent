@@ -193,24 +193,24 @@ private:
 using log_group_list = std::array<log_group, LOG_GROUP_MAX_SIZE>;
 using log_output_list = std::vector<std::pair<std::string, log_slot>>;
 
-extern log_group_list log_groups LIBTORRENT_EXPORT;
-extern log_output_list log_outputs LIBTORRENT_EXPORT;
+extern LIBTORRENT_EXPORT log_group_list log_groups;
+extern LIBTORRENT_EXPORT log_output_list log_outputs;
 
-void log_initialize() LIBTORRENT_EXPORT;
-void log_cleanup() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void log_initialize();
+LIBTORRENT_EXPORT void log_cleanup();
 
-void log_open_output(const char* name, const log_slot& slot) LIBTORRENT_EXPORT;
-void log_close_output(const char* name) LIBTORRENT_EXPORT;
-void log_close_output_str(const std::string& name) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void log_open_output(const char* name, const log_slot& slot);
+LIBTORRENT_EXPORT void log_close_output(const char* name);
+LIBTORRENT_EXPORT void log_close_output_str(const std::string& name);
 
-void log_add_group_output(int group, const char* name) LIBTORRENT_EXPORT;
-void log_remove_group_output(int group, const char* name) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void log_add_group_output(int group, const char* name);
+LIBTORRENT_EXPORT void log_remove_group_output(int group, const char* name);
 
-void log_add_child(int group, int child) LIBTORRENT_EXPORT;
-void log_remove_child(int group, int child) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void log_add_child(int group, int child);
+LIBTORRENT_EXPORT void log_remove_child(int group, int child);
 
-void log_open_file_output(const char* name, const char* filename, bool append = false, bool flush = false) LIBTORRENT_EXPORT;
-void log_open_gz_file_output(const char* name, const char* filename, bool append = false) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void log_open_file_output(const char* name, const char* filename, bool append = false, bool flush = false);
+LIBTORRENT_EXPORT void log_open_gz_file_output(const char* name, const char* filename, bool append = false);
 
 //
 // Implementation:

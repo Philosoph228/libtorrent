@@ -15,7 +15,12 @@ class raw_string;
 
 using ipv4_table = extents<uint32_t, int>;
 
-class LIBTORRENT_EXPORT PeerList : private std::multimap<socket_address_key, std::unique_ptr<PeerInfo>> {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#endif
+
+class PeerList : private std::multimap<socket_address_key, std::unique_ptr<PeerInfo>> {
 public:
   friend class DownloadWrapper;
   friend class Handshake;
@@ -52,20 +57,20 @@ public:
   static constexpr int cull_old                = (1 << 0);
   static constexpr int cull_keep_interesting   = (1 << 1);
 
-  PeerList();
-  ~PeerList();
+  LIBTORRENT_EXPORT PeerList();
+  LIBTORRENT_EXPORT ~PeerList();
 
-  PeerInfo*           insert_address(const sockaddr* address, int flags);
+  LIBTORRENT_EXPORT PeerInfo* insert_address(const sockaddr* address, int flags);
 
   // This will be used internally only for the moment.
   uint32_t            insert_available(const void* al) LIBTORRENT_NO_EXPORT;
 
-  static ipv4_table*  ipv4_filter()     { return &m_ipv4_table; }
+  LIBTORRENT_EXPORT static ipv4_table* ipv4_filter()     { return &m_ipv4_table; }
 
-  const auto&         available_list()  { return m_available_list; }
-  uint32_t            available_list_size() const;
+  LIBTORRENT_EXPORT const auto& available_list()  { return m_available_list; }
+  LIBTORRENT_EXPORT uint32_t    available_list_size() const;
 
-  uint32_t            cull_peers(int flags);
+  LIBTORRENT_EXPORT uint32_t    cull_peers(int flags);
 
   const_iterator         begin() const  { return base_type::begin(); }
   const_iterator         end() const    { return base_type::end(); }
@@ -95,6 +100,10 @@ private:
   DownloadInfo*                  m_info;
   std::unique_ptr<AvailableList> m_available_list;
 };
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } // namespace torrent
 

@@ -21,11 +21,29 @@
 
 namespace torrent::utils {
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+static thread_local Thread* s_thread_self{nullptr};
+#else
 thread_local Thread* Thread::m_self{nullptr};
+#endif
 
 Thread::~Thread() = default;
 
-Thread* Thread::self() { return m_self; }
+Thread* Thread::self() {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+  return s_thread_self;
+#else
+  return m_self;
+#endif
+}
+
+void Thread::set_self(Thread* t) {
+#if defined(_MSC_VER) || defined(__MINGW32__)
+  s_thread_self = t;
+#else
+  m_self = t;
+#endif
+}
 
 void Thread::init_thread() {}
 void Thread::init_thread_pre_start() {}
@@ -236,7 +254,7 @@ Thread::init_thread_local() {
   pthread_setname_np(pthread_self(), name());
 #endif
 
-  m_self = this;
+  set_self(this);
   m_thread = pthread_self();
   m_thread_id = std::this_thread::get_id();
 
@@ -261,7 +279,7 @@ Thread::cleanup_thread_local() {
   cleanup_thread();
 
   // TODO: Cleanup the resolver, scheduler, and poll objects.
-  m_self = nullptr;
+  set_self(nullptr);
 }
 
 void

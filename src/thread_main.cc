@@ -29,6 +29,8 @@ uint32_t                hash_queue_size() { return torrent::ThreadMainInternal::
 
 ThreadMain* ThreadMain::m_thread_main{nullptr};
 
+ThreadMain::ThreadMain() = default;
+
 ThreadMain::~ThreadMain() {
   cleanup_thread();
 }
@@ -71,7 +73,7 @@ ThreadMain::cleanup_thread() {
   m_hash_queue.reset();
 
   m_thread_main = nullptr;
-  m_self = nullptr;
+  set_self(nullptr);
 }
 
 void

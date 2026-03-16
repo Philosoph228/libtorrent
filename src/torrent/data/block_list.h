@@ -8,7 +8,12 @@
 
 namespace torrent {
 
-class LIBTORRENT_EXPORT BlockList : private std::vector<Block> {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#endif
+
+class BlockList : private std::vector<Block> {
 public:
   using size_type = uint32_t;
   using base_type = std::vector<Block>;
@@ -27,8 +32,8 @@ public:
 
   using base_type::operator[];
 
-  BlockList(const Piece& piece, uint32_t blockLength);
-  ~BlockList();
+  LIBTORRENT_EXPORT BlockList(const Piece& piece, uint32_t blockLength);
+  LIBTORRENT_EXPORT ~BlockList();
   BlockList(const BlockList&) = delete;
   BlockList& operator=(const BlockList&) = delete;
 
@@ -60,7 +65,7 @@ public:
   bool                by_seeder() const             { return m_bySeeder; }
   void                set_by_seeder(bool state)     { m_bySeeder = state; }
 
-  void                do_all_failed();
+  LIBTORRENT_EXPORT void do_all_failed();
 
 private:
   Piece               m_piece;
@@ -72,6 +77,10 @@ private:
 
   bool                m_bySeeder{false};
 };
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } // namespace torrent
 

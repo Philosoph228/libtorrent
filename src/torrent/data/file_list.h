@@ -18,7 +18,14 @@ class DownloadMain;
 class DownloadWrapper;
 class Handshake;
 
-class LIBTORRENT_EXPORT FileList : private std::vector<std::unique_ptr<File>> {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4251)
+// Prevent MSVC from eagerly instantiating copy-based vector methods for move-only unique_ptr<File>.
+extern template class std::vector<std::unique_ptr<File>>;
+#endif
+
+class FileList : private std::vector<std::unique_ptr<File>> {
 public:
   friend class Content;
   friend class Download;
@@ -56,17 +63,17 @@ public:
   using base_type::at;
   using base_type::operator[];
 
-  FileList();
-  ~FileList();
+  LIBTORRENT_EXPORT FileList();
+  LIBTORRENT_EXPORT ~FileList();
 
   bool                is_open() const                                 { return m_is_open; }
   bool                is_done() const                                 { return completed_chunks() == size_chunks(); }
-  bool                is_valid_piece(const Piece& piece) const;
-  bool                is_root_dir_created() const;
+  LIBTORRENT_EXPORT bool is_valid_piece(const Piece& piece) const;
+  LIBTORRENT_EXPORT bool is_root_dir_created() const;
 
   // Check if the torrent is loaded as a multi-file torrent. This may
   // return true even for a torrent with just one file.
-  bool                is_multi_file() const;
+  LIBTORRENT_EXPORT bool is_multi_file() const;
   void                set_multi_file(bool state)                      { m_multi_file = state; }
 
   size_t              size_files() const                              { return base_type::size(); }
@@ -74,11 +81,11 @@ public:
   uint32_t            size_chunks() const                             { return bitfield()->size_bits(); }
 
   uint32_t            completed_chunks() const                        { return bitfield()->size_set(); }
-  uint64_t            completed_bytes() const;
-  uint64_t            left_bytes() const;
+  LIBTORRENT_EXPORT uint64_t completed_bytes() const;
+  LIBTORRENT_EXPORT uint64_t left_bytes() const;
 
   uint32_t            chunk_size() const                              { return m_chunk_size; }
-  uint32_t            chunk_index_size(uint32_t index) const;
+  LIBTORRENT_EXPORT uint32_t chunk_index_size(uint32_t index) const;
   uint64_t            chunk_index_position(uint32_t index) const      { return index * chunk_size(); }
 
   const download_data* data() const                                   { return &m_data; }
@@ -87,14 +94,14 @@ public:
   // You may only call set_root_dir after all nodes have been added.
   const std::string&  root_dir() const                                { return m_root_dir; }
   const std::string&  frozen_root_dir() const                         { return m_frozen_root_dir; }
-  void                set_root_dir(const std::string& path);
+  LIBTORRENT_EXPORT void set_root_dir(const std::string& path);
 
   uint64_t            max_file_size() const                           { return m_max_file_size; }
-  void                set_max_file_size(uint64_t size);
+  LIBTORRENT_EXPORT void set_max_file_size(uint64_t size);
 
   // If the files span multiple disks, the one with the least amount
   // of free diskspace will be returned.
-  uint64_t            free_diskspace() const;
+  LIBTORRENT_EXPORT uint64_t free_diskspace() const;
 
   // List of directories in the torrent that might be on different
   // volumes as they are links, including the root directory. Used by
@@ -104,16 +111,16 @@ public:
   // The sum of the sizes in the range [first,last> must be equal to
   // the size of 'position'. Do not use the old pointer in 'position'
   // after this call.
-  iterator_range      split(iterator position, split_type* first, split_type* last);
+  LIBTORRENT_EXPORT iterator_range split(iterator position, split_type* first, split_type* last);
 
   // Use an empty range to insert a zero length file.
-  iterator            merge(iterator first, iterator last, const Path& path);
+  LIBTORRENT_EXPORT iterator merge(iterator first, iterator last, const Path& path);
   iterator            merge(iterator_range range, const Path& path)   { return merge(range.first, range.second, path); }
 
-  void                update_paths(iterator first, iterator last);
+  LIBTORRENT_EXPORT void update_paths(iterator first, iterator last);
 
-  bool                make_root_path();
-  bool                make_all_paths();
+  LIBTORRENT_EXPORT bool make_root_path();
+  LIBTORRENT_EXPORT bool make_all_paths();
 
 protected:
   static constexpr int open_no_create        = (1 << 0);
@@ -163,6 +170,10 @@ private:
   bool                m_multi_file{false};
   std::string         m_frozen_root_dir;
 };
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } // namespace torrent
 

@@ -31,8 +31,8 @@ public:
   // Only allow move constructions
   Block(const Block&) = delete;
   Block& operator=(const Block&) = delete;
-  Block(Block&&) = default;
-  Block& operator=(Block&&) = default;
+  Block(Block&&) noexcept = default;
+  Block& operator=(Block&&) noexcept = default;
 
   bool                      is_stalled() const                           { return m_notStalled == 0; }
   bool                      is_finished() const;

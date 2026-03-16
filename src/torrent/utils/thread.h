@@ -115,7 +115,13 @@ protected:
 
   void                set_cached_time(std::chrono::microseconds t);
 
-  static thread_local Thread*  m_self;
+  // Sets/clears the current thread pointer. On MSVC/MinGW, thread_local class members with
+  // dll interface are not allowed (C2492), so we use a file-static in thread.cc instead.
+  static void         set_self(Thread* t);
+
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+  static thread_local Thread* m_self;
+#endif
 
   // TODO: Remove m_thread.
   pthread_t                    m_thread{};
@@ -132,6 +138,8 @@ protected:
   std::unique_ptr<net::Resolver>   m_resolver;
   std::unique_ptr<Scheduler>       m_scheduler;
   class signal_bitfield            m_signal_bitfield;
+
+private:
 
   std::unique_ptr<SignalInterrupt> m_interrupt_sender;
   std::unique_ptr<SignalInterrupt> m_interrupt_receiver;

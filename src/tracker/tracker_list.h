@@ -22,7 +22,12 @@ namespace torrent {
 // Upon request success move the tracker to the beginning of the subgroup and start from the
 // beginning of the whole list.
 
-class LIBTORRENT_EXPORT TrackerList : private std::vector<tracker::Tracker> {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#endif
+
+class TrackerList : private std::vector<tracker::Tracker> {
 public:
   using base_type = std::vector<tracker::Tracker>;
 
@@ -44,32 +49,32 @@ public:
 
   using base_type::at;
 
-  TrackerList();
-  ~TrackerList();
+  LIBTORRENT_EXPORT TrackerList();
+  LIBTORRENT_EXPORT ~TrackerList();
 
-  bool                has_active() const;
-  bool                has_active_not_dht() const;
-  bool                has_active_not_scrape() const;
-  bool                has_active_in_group(uint32_t group) const;
-  bool                has_active_not_scrape_in_group(uint32_t group) const;
-  bool                has_usable() const;
+  LIBTORRENT_EXPORT bool has_active() const;
+  LIBTORRENT_EXPORT bool has_active_not_dht() const;
+  LIBTORRENT_EXPORT bool has_active_not_scrape() const;
+  LIBTORRENT_EXPORT bool has_active_in_group(uint32_t group) const;
+  LIBTORRENT_EXPORT bool has_active_not_scrape_in_group(uint32_t group) const;
+  LIBTORRENT_EXPORT bool has_usable() const;
 
   void                close_all() { close_all_excluding(0); }
-  void                close_all_excluding(int event_bitmap);
+  LIBTORRENT_EXPORT void close_all_excluding(int event_bitmap);
 
-  void                clear();
-  void                clear_stats();
+  LIBTORRENT_EXPORT void clear();
+  LIBTORRENT_EXPORT void clear_stats();
 
-  iterator            insert(unsigned int group, const tracker::Tracker& tracker);
-  void                insert_url(unsigned int group, const std::string& url, bool extra_tracker = false);
+  LIBTORRENT_EXPORT iterator insert(unsigned int group, const tracker::Tracker& tracker);
+  LIBTORRENT_EXPORT void     insert_url(unsigned int group, const std::string& url, bool extra_tracker = false);
 
   // TODO: Move these to controller / tracker.
 
   // TODO: CHECK PEX CAUSES PEER CONNECTS.
 
-  void                send_event(tracker::Tracker& tracker, tracker::TrackerState::event_enum new_event);
+  LIBTORRENT_EXPORT void send_event(tracker::Tracker& tracker, tracker::TrackerState::event_enum new_event);
 
-  void                send_scrape(tracker::Tracker& tracker);
+  LIBTORRENT_EXPORT void send_scrape(tracker::Tracker& tracker);
 
   const DownloadInfo* info() const                            { return m_info; }
   int                 state() const                           { return m_state; }
@@ -79,27 +84,27 @@ public:
   void                set_numwant(int32_t n)                  { m_numwant = n; }
 
   iterator            find(const tracker::Tracker& tb)        { return std::find(begin(), end(), tb); }
-  iterator            find_url(const std::string& url);
+  LIBTORRENT_EXPORT iterator find_url(const std::string& url);
 
-  iterator            find_next_to_request(iterator itr);
+  LIBTORRENT_EXPORT iterator find_next_to_request(iterator itr);
 
-  iterator            begin_group(unsigned int group);
-  const_iterator      begin_group(unsigned int group) const;
+  LIBTORRENT_EXPORT iterator       begin_group(unsigned int group);
+  LIBTORRENT_EXPORT const_iterator begin_group(unsigned int group) const;
   iterator            end_group(unsigned int group)           { return begin_group(group + 1); }
   const_iterator      end_group(unsigned int group) const     { return begin_group(group + 1); }
 
-  size_type           size_group() const;
-  void                cycle_group(unsigned int group);
+  LIBTORRENT_EXPORT size_type size_group() const;
+  LIBTORRENT_EXPORT void      cycle_group(unsigned int group);
 
-  iterator            promote(iterator itr);
-  void                randomize_group_entries();
+  LIBTORRENT_EXPORT iterator promote(iterator itr);
+  LIBTORRENT_EXPORT void     randomize_group_entries();
 
   // TODO: Make protected.
-  void                receive_success(tracker::Tracker tracker, AddressList* l);
-  void                receive_failed(tracker::Tracker tracker, const std::string& msg);
-  void                receive_scrape_success(tracker::Tracker tracker);
-  void                receive_scrape_failed(tracker::Tracker tracker, const std::string& msg);
-  void                receive_new_peers(tracker::Tracker tracker, AddressList* l);
+  LIBTORRENT_EXPORT void receive_success(tracker::Tracker tracker, AddressList* l);
+  LIBTORRENT_EXPORT void receive_failed(tracker::Tracker tracker, const std::string& msg);
+  LIBTORRENT_EXPORT void receive_scrape_success(tracker::Tracker tracker);
+  LIBTORRENT_EXPORT void receive_scrape_failed(tracker::Tracker tracker, const std::string& msg);
+  LIBTORRENT_EXPORT void receive_new_peers(tracker::Tracker tracker, AddressList* l);
 
   auto&               slot_success()                          { return m_slot_success; }
   auto&               slot_failure()                          { return m_slot_failed; }
@@ -137,6 +142,10 @@ private:
   std::function<void(tracker::Tracker)>                     m_slot_tracker_enabled;
   std::function<void(tracker::Tracker)>                     m_slot_tracker_disabled;
 };
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } // namespace torrent
 

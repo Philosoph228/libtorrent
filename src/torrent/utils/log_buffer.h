@@ -25,7 +25,12 @@ struct log_entry {
   std::string message;
 };
 
-class LIBTORRENT_EXPORT log_buffer : private std::deque<log_entry> {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#endif
+
+class log_buffer : private std::deque<log_entry> {
 public:
   using base_type = std::deque<log_entry>;
   using slot_void = std::function<void()>;
@@ -51,11 +56,11 @@ public:
   void                lock()   { m_lock.lock(); }
   void                unlock() { m_lock.unlock(); }
 
-  const_iterator      find_older(int32_t older_than);
+  LIBTORRENT_EXPORT const_iterator find_older(int32_t older_than);
 
-  void                lock_and_set_update_slot(const slot_void& slot) { lock(); m_slot_update = slot; unlock(); }
+  LIBTORRENT_EXPORT void lock_and_set_update_slot(const slot_void& slot) { lock(); m_slot_update = slot; unlock(); }
 
-  void                lock_and_push_log(const char* data, size_t length, int group);
+  LIBTORRENT_EXPORT void lock_and_push_log(const char* data, size_t length, int group);
 
 private:
   std::mutex          m_lock;
@@ -63,9 +68,13 @@ private:
   slot_void           m_slot_update;
 };
 
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 typedef std::unique_ptr<log_buffer, std::function<void (log_buffer*)>> log_buffer_ptr;
 
-log_buffer_ptr log_open_log_buffer(const char* name) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT log_buffer_ptr log_open_log_buffer(const char* name);
 
 } // namespace torrent
 

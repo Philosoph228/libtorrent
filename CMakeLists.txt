@@ -241,6 +241,17 @@ if(UNIX AND NOT WIN32)
   target_compile_definitions(torrent PUBLIC _FILE_OFFSET_BITS=64)
 endif()
 
+if(WIN32 AND BUILD_SHARED_LIBS)
+  target_compile_definitions(torrent PRIVATE LIBTORRENT_BUILDING_DLL)
+endif()
+
+if(MSVC)
+  # Suppress MSVC warnings about DLL interface for STL containers with move-only types.
+  # C4251: class needs dll-interface, C4661: no suitable definition for explicit instantiation.
+  # These are expected when exporting classes that inherit from std::vector<T> where T is move-only.
+  target_compile_options(torrent PRIVATE /wd4251 /wd4661)
+endif()
+
 target_link_libraries(torrent
   PUBLIC
     Threads::Threads

@@ -53,7 +53,7 @@ struct vm_mapping {
 
 // Change to ChunkList* when that becomes part of the public API.
 
-std::vector<vm_mapping> chunk_list_mapping(Download* download) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT std::vector<vm_mapping> chunk_list_mapping(Download* download);
 
 struct chunk_info_result {
   Download download;
@@ -70,7 +70,7 @@ struct chunk_info_result {
   // int prot;
 };
 
-chunk_info_result chunk_list_address_info(void* address) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT chunk_info_result chunk_list_address_info(void* address);
 
 } // namespace torrent
 

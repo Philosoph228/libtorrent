@@ -29,7 +29,7 @@ public:
 protected:
   friend class ThreadMainInternal;
 
-  ThreadMain() = default;
+  ThreadMain();
 
   void                      call_events() override;
   std::chrono::microseconds next_timeout() override;

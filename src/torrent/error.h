@@ -74,7 +74,7 @@ const int e_handshake_network_write_error       = 20;
 
 const int e_last                                = 20;
 
-const char* strerror(int err) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT const char* strerror(int err);
 
 } // namespace torrent
 

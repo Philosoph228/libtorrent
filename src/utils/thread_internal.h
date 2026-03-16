@@ -8,19 +8,19 @@ namespace torrent::utils {
 
 class ThreadInternal {
 public:
-  static torrent::utils::Thread*   thread()         { return Thread::m_self; }
-  static std::thread::id           thread_id()      { return Thread::m_self->thread_id(); }
+  static torrent::utils::Thread*   thread()         { return Thread::self(); }
+  static std::thread::id           thread_id()      { return Thread::self()->thread_id(); }
 
-  static std::chrono::microseconds cached_time()    { return Thread::m_self->m_cached_time; }
-  static std::chrono::seconds      cached_seconds() { return cast_seconds(Thread::m_self->m_cached_time); }
+  static std::chrono::microseconds cached_time()    { return Thread::self()->m_cached_time; }
+  static std::chrono::seconds      cached_seconds() { return cast_seconds(Thread::self()->m_cached_time); }
 
-  static void                      callback(void* target, std::function<void ()>&& fn) { Thread::m_self->callback(target, std::move(fn)); }
-  static void                      cancel_callback(void* target)                       { Thread::m_self->cancel_callback(target); }
-  static void                      cancel_callback_and_wait(void* target)              { Thread::m_self->cancel_callback_and_wait(target); }
+  static void                      callback(void* target, std::function<void ()>&& fn) { Thread::self()->callback(target, std::move(fn)); }
+  static void                      cancel_callback(void* target)                       { Thread::self()->cancel_callback(target); }
+  static void                      cancel_callback_and_wait(void* target)              { Thread::self()->cancel_callback_and_wait(target); }
 
-  static net::Poll*                poll()           { return Thread::m_self->m_poll.get(); }
-  static Scheduler*                scheduler()      { return Thread::m_self->m_scheduler.get(); }
-  static net::Resolver*            resolver()       { return Thread::m_self->m_resolver.get(); }
+  static net::Poll*                poll()           { return Thread::self()->m_poll.get(); }
+  static Scheduler*                scheduler()      { return Thread::self()->m_scheduler.get(); }
+  static net::Resolver*            resolver()       { return Thread::self()->m_resolver.get(); }
 };
 
 } // namespace torrent::utils

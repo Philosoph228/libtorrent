@@ -112,17 +112,28 @@ class Thread;
 } // namespace torrent
 
 // This should only need to be set when compiling libtorrent.
-#ifdef SUPPORT_ATTRIBUTE_VISIBILITY
+#if defined(_MSC_VER) || defined(__MINGW32__)
+  #ifdef LIBTORRENT_BUILDING_DLL
+    #define LIBTORRENT_EXPORT __declspec(dllexport)
+  #else
+    #define LIBTORRENT_EXPORT __declspec(dllimport)
+  #endif
+  #define LIBTORRENT_NO_EXPORT
+  // MSVC does not support weak symbols; define away the attribute
+  #define LIBTORRENT_WEAK
+#elif defined(SUPPORT_ATTRIBUTE_VISIBILITY)
   #define LIBTORRENT_NO_EXPORT __attribute__ ((visibility("hidden")))
   #define LIBTORRENT_EXPORT __attribute__ ((visibility("default")))
+  #define LIBTORRENT_WEAK [[gnu::weak]]
 #else
   #define LIBTORRENT_NO_EXPORT
   #define LIBTORRENT_EXPORT
+  #define LIBTORRENT_WEAK [[gnu::weak]]
 #endif
 
 namespace torrent::config {
 
-torrent::net::NetworkConfig* network_config() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT torrent::net::NetworkConfig* network_config();
 
 } // namespace torrent::config
 
@@ -132,69 +143,69 @@ namespace torrent::runtime {
 
 // add fd_manager here...
 
-NetworkManager*           network_manager() LIBTORRENT_EXPORT;
-SocketManager*            socket_manager() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT NetworkManager*           network_manager();
+LIBTORRENT_EXPORT SocketManager*            socket_manager();
 
-void                      dht_add_peer_node(const sockaddr* sa, uint16_t port) LIBTORRENT_EXPORT;
-uint16_t                  listen_port() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void                      dht_add_peer_node(const sockaddr* sa, uint16_t port);
+LIBTORRENT_EXPORT uint16_t                  listen_port();
 
 } // namespace torrent::runtime
 
 namespace torrent::this_thread {
 
-torrent::utils::Thread*   thread() LIBTORRENT_EXPORT;
-std::thread::id           thread_id() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT torrent::utils::Thread*   thread();
+LIBTORRENT_EXPORT std::thread::id           thread_id();
 
-std::chrono::microseconds cached_time() LIBTORRENT_EXPORT;
-std::chrono::seconds      cached_seconds() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT std::chrono::microseconds cached_time();
+LIBTORRENT_EXPORT std::chrono::seconds      cached_seconds();
 
-void                      callback(void* target, std::function<void ()>&& fn) LIBTORRENT_EXPORT;
-void                      cancel_callback(void* target) LIBTORRENT_EXPORT;
-void                      cancel_callback_and_wait(void* target) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void                      callback(void* target, std::function<void ()>&& fn);
+LIBTORRENT_EXPORT void                      cancel_callback(void* target);
+LIBTORRENT_EXPORT void                      cancel_callback_and_wait(void* target);
 
-net::Poll*                poll() LIBTORRENT_EXPORT;
-net::Resolver*            resolver() LIBTORRENT_EXPORT;
-utils::Scheduler*         scheduler() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT net::Poll*                poll();
+LIBTORRENT_EXPORT net::Resolver*            resolver();
+LIBTORRENT_EXPORT utils::Scheduler*         scheduler();
 
-[[gnu::weak]] void event_open(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_open_and_count(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_close_and_count(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_closed_and_count(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_insert_read(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_insert_write(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_insert_error(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_remove_read(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_remove_write(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_remove_error(Event* event) LIBTORRENT_EXPORT;
-[[gnu::weak]] void event_remove_and_close(Event* event) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_open(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_open_and_count(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_close_and_count(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_closed_and_count(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_insert_read(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_insert_write(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_insert_error(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_remove_read(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_remove_write(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_remove_error(Event* event);
+LIBTORRENT_EXPORT LIBTORRENT_WEAK void event_remove_and_close(Event* event);
 
 } // namespace torrent::this_thread
 
 namespace torrent::main_thread {
 
-torrent::utils::Thread* thread() LIBTORRENT_EXPORT;
-std::thread::id         thread_id() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT torrent::utils::Thread* thread();
+LIBTORRENT_EXPORT std::thread::id         thread_id();
 
-void                    callback(void* target, std::function<void ()>&& fn) LIBTORRENT_EXPORT;
-void                    cancel_callback(void* target) LIBTORRENT_EXPORT;
-void                    cancel_callback_and_wait(void* target) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void                    callback(void* target, std::function<void ()>&& fn);
+LIBTORRENT_EXPORT void                    cancel_callback(void* target);
+LIBTORRENT_EXPORT void                    cancel_callback_and_wait(void* target);
 
-uint32_t                hash_queue_size() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT uint32_t                hash_queue_size();
 
 } // namespace torrent::main_thread
 
 namespace torrent::net_thread {
 
-torrent::utils::Thread* thread() LIBTORRENT_EXPORT;
-std::thread::id         thread_id() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT torrent::utils::Thread* thread();
+LIBTORRENT_EXPORT std::thread::id         thread_id();
 
-void                    callback(void* target, std::function<void ()>&& fn) LIBTORRENT_EXPORT;
-void                    callback_interrupt_polling(void* target, std::function<void ()>&& fn) LIBTORRENT_EXPORT;
-void                    callback_interrupt_polling_and_wait(void* target, std::function<void ()>&& fn) LIBTORRENT_EXPORT;
-void                    cancel_callback(void* target) LIBTORRENT_EXPORT;
-void                    cancel_callback_and_wait(void* target) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void                    callback(void* target, std::function<void ()>&& fn);
+LIBTORRENT_EXPORT void                    callback_interrupt_polling(void* target, std::function<void ()>&& fn);
+LIBTORRENT_EXPORT void                    callback_interrupt_polling_and_wait(void* target, std::function<void ()>&& fn);
+LIBTORRENT_EXPORT void                    cancel_callback(void* target);
+LIBTORRENT_EXPORT void                    cancel_callback_and_wait(void* target);
 
-torrent::net::HttpStack* http_stack() LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT torrent::net::HttpStack* http_stack();
 
 } // namespace torrent::net_thread
 

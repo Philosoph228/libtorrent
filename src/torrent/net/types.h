@@ -14,7 +14,7 @@ struct sockaddr_un;
 
 namespace torrent {
 
-void sa_free(const sockaddr* sa) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void sa_free(const sockaddr* sa);
 
 struct sockaddr_deleter {
   constexpr sockaddr_deleter() noexcept = default;

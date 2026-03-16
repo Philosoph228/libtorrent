@@ -36,7 +36,7 @@ protected:
   friend class torrent::net::HttpStack;
   friend class torrent::net::Resolver;
 
-  ThreadNet() = default;
+  ThreadNet();
 
   static auto         internal_thread_net() { return m_thread_net; }
 

@@ -352,9 +352,9 @@ object_create_raw_bencode_c_str(const char str[]) {
 
 // TODO: These do not preserve the flag...
 
-Object object_create_normal(const raw_bencode& obj) LIBTORRENT_EXPORT;
-Object object_create_normal(const raw_list& obj) LIBTORRENT_EXPORT;
-Object object_create_normal(const raw_map& obj) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT Object object_create_normal(const raw_bencode& obj);
+LIBTORRENT_EXPORT Object object_create_normal(const raw_list& obj);
+LIBTORRENT_EXPORT Object object_create_normal(const raw_map& obj);
 inline Object object_create_normal(const raw_string& obj) { return torrent::Object(obj.as_string()); }
 
 inline Object

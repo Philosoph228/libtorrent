@@ -51,7 +51,7 @@ public:
 private:
   using poll_event_list = std::vector<std::shared_ptr<net::PollEvent>>;
 
-  Poll() = default;
+  Poll();
   Poll(const Poll&) = delete;
   Poll& operator=(const Poll&) = delete;
 

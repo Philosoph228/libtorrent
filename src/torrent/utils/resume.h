@@ -53,27 +53,27 @@ namespace torrent {
 // 'onlyCompleted' to ensure that a crash, etc, will cause incomplete
 // files to be hashed.
 
-void resume_load_progress(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_progress(Download download, Object& object) LIBTORRENT_EXPORT;
-void resume_clear_progress(Download download, Object& object) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void resume_load_progress(Download download, const Object& object);
+LIBTORRENT_EXPORT void resume_save_progress(Download download, Object& object);
+LIBTORRENT_EXPORT void resume_clear_progress(Download download, Object& object);
 
-bool resume_load_bitfield(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_bitfield(Download download, Object& object) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool resume_load_bitfield(Download download, const Object& object);
+LIBTORRENT_EXPORT void resume_save_bitfield(Download download, Object& object);
 
 // Do not call 'resume_load_uncertain_pieces' directly.
-void resume_load_uncertain_pieces(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_uncertain_pieces(Download download, Object& object) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void resume_load_uncertain_pieces(Download download, const Object& object);
+LIBTORRENT_EXPORT void resume_save_uncertain_pieces(Download download, Object& object);
 
-bool resume_check_target_files(Download download, const Object& object) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT bool resume_check_target_files(Download download, const Object& object);
 
-void resume_load_file_priorities(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_file_priorities(Download download, Object& object) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void resume_load_file_priorities(Download download, const Object& object);
+LIBTORRENT_EXPORT void resume_save_file_priorities(Download download, Object& object);
 
-void resume_load_addresses(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_addresses(Download download, Object& object) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void resume_load_addresses(Download download, const Object& object);
+LIBTORRENT_EXPORT void resume_save_addresses(Download download, Object& object);
 
-void resume_load_tracker_settings(Download download, const Object& object) LIBTORRENT_EXPORT;
-void resume_save_tracker_settings(Download download, Object& object) LIBTORRENT_EXPORT;
+LIBTORRENT_EXPORT void resume_load_tracker_settings(Download download, const Object& object);
+LIBTORRENT_EXPORT void resume_save_tracker_settings(Download download, Object& object);
 
 } // namespace torrent
 
