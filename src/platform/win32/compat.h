@@ -20,6 +20,21 @@
 #include <cstring>
 #include <cerrno>
 
+// MSVC defines off_t as 'long' (32-bit). Override it to int64_t so that
+// libtorrent's sizeof(off_t) != 8 check passes and large files work correctly.
+// Must be done before any header that pulls in <sys/types.h>.
+#ifdef _MSC_VER
+#  ifdef _off_t
+#    undef _off_t
+#  endif
+#  ifdef off_t
+#    undef off_t
+#  endif
+typedef int64_t off_t;
+#  define _off_t off_t
+#  define _OFF_T_DEFINED
+#endif
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <io.h>
