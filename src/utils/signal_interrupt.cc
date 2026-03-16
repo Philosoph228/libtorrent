@@ -67,8 +67,13 @@ SignalInterrupt::poke() {
   if (result == 0)
     throw internal_error("Could not send to SignalInterrupt socket, result is 0.");
 
-  if (result == -1)
-    throw internal_error("Could not send to SignalInterrupt socket: " + std::string(std::strerror(errno)));
+  if (result == -1) {
+#ifdef _WIN32
+    errno = WSAGetLastError();
+#endif
+    if (errno != EAGAIN && errno != EINTR)
+      throw internal_error("Could not send to SignalInterrupt socket: " + std::string(std::strerror(errno)));
+  }
 
   instrumentation_update(INSTRUMENTATION_POLLING_INTERRUPT_POKE, 1);
 }
@@ -87,8 +92,14 @@ SignalInterrupt::event_read() {
   if (result == 0)
     throw internal_error("SignalInterrupt socket closed.");
 
-  if (result == -1)
-    throw internal_error("SignalInterrupt socket error: " + std::string(std::strerror(errno)));
+  if (result == -1) {
+#ifdef _WIN32
+    errno = WSAGetLastError();
+#endif
+    if (errno != EAGAIN && errno != EINTR)
+      throw internal_error("SignalInterrupt socket error: " + std::string(std::strerror(errno)));
+    return;
+  }
 
   instrumentation_update(INSTRUMENTATION_POLLING_INTERRUPT_READ_EVENT, 1);
 
