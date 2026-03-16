@@ -26,6 +26,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <direct.h>
+#include <string>
+#include <stdexcept>
 
 // Auto-initialize Winsock on Windows so callers don't need to call WSAStartup.
 // This runs before main() via a static constructor.
@@ -88,15 +90,76 @@ typedef unsigned short mode_t;
 #define S_ISSOCK(m) (0)
 #endif
 
+// Convert a UTF-8 narrow string to a wide (UTF-16) string for Win32 APIs.
+static inline std::wstring lt_utf8_to_wide(const char* s) {
+  if (!s || !*s) return L"";
+  int len = MultiByteToWideChar(CP_UTF8, 0, s, -1, nullptr, 0);
+  if (len <= 0) return L"";
+  std::wstring w(len - 1, L'\0');
+  MultiByteToWideChar(CP_UTF8, 0, s, -1, &w[0], len);
+  return w;
+}
+
 static inline int lstat(const char* path, struct stat* st) {
-  return stat(path, st);
+  struct _stat64 st64;
+  int r = _wstat64(lt_utf8_to_wide(path).c_str(), &st64);
+  if (r == 0) {
+    st->st_mode  = (unsigned short)st64.st_mode;
+    st->st_size  = (long)st64.st_size;
+    st->st_mtime = (time_t)st64.st_mtime;
+    st->st_atime = (time_t)st64.st_atime;
+    st->st_ctime = (time_t)st64.st_ctime;
+    st->st_dev   = st64.st_dev;
+    st->st_ino   = st64.st_ino;
+    st->st_nlink = st64.st_nlink;
+    st->st_uid   = st64.st_uid;
+    st->st_gid   = st64.st_gid;
+  }
+  return r;
 }
 
 #ifndef mkdir
 static inline int mkdir(const char* path, mode_t mode) {
   (void)mode;
-  return _mkdir(path);
+  return _wmkdir(lt_utf8_to_wide(path).c_str());
 }
+#endif
+
+// Intercept open() to use _wopen so UTF-8 paths work on Windows.
+static inline int lt_open_utf8(const char* path, int flags, ...) {
+  int mode = 0;
+  if (flags & O_CREAT) {
+    va_list ap;
+    va_start(ap, flags);
+    mode = va_arg(ap, int);
+    va_end(ap);
+  }
+  return _wopen(lt_utf8_to_wide(path).c_str(), flags, mode);
+}
+#ifndef open
+#define open lt_open_utf8
+#endif
+
+// Intercept stat() to use _wstat64 so UTF-8 paths work on Windows.
+static inline int lt_stat_utf8(const char* path, struct stat* st) {
+  struct _stat64 st64;
+  int r = _wstat64(lt_utf8_to_wide(path).c_str(), &st64);
+  if (r == 0) {
+    st->st_mode  = (unsigned short)st64.st_mode;
+    st->st_size  = (long)st64.st_size;
+    st->st_mtime = (time_t)st64.st_mtime;
+    st->st_atime = (time_t)st64.st_atime;
+    st->st_ctime = (time_t)st64.st_ctime;
+    st->st_dev   = st64.st_dev;
+    st->st_ino   = st64.st_ino;
+    st->st_nlink = st64.st_nlink;
+    st->st_uid   = st64.st_uid;
+    st->st_gid   = st64.st_gid;
+  }
+  return r;
+}
+#ifndef stat
+#define stat(path, st) lt_stat_utf8(path, st)
 #endif
 
 #ifndef O_NONBLOCK
