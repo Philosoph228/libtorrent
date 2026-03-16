@@ -54,7 +54,20 @@ SocketStream::read_stream(void* buf, uint32_t length) {
   if (length == 0)
     throw internal_error("Tried to read to buffer length 0.");
 
-  return ::recv(m_fileDesc, static_cast<char*>(buf), length, 0);
+  int r = ::recv(m_fileDesc, static_cast<char*>(buf), length, 0);
+#ifdef _WIN32
+  if (r < 0) {
+    int wsa_err = WSAGetLastError();
+    switch (wsa_err) {
+      case WSAEWOULDBLOCK:  errno = EAGAIN;       break;
+      case WSAEINTR:        errno = EINTR;        break;
+      case WSAECONNRESET:   errno = ECONNRESET;   break;
+      case WSAECONNABORTED: errno = ECONNABORTED; break;
+      default:              errno = wsa_err;      break;
+    }
+  }
+#endif
+  return r;
 }
 
 inline int
@@ -62,7 +75,20 @@ SocketStream::write_stream(const void* buf, uint32_t length) {
   if (length == 0)
     throw internal_error("Tried to write to buffer length 0.");
 
-  return ::send(m_fileDesc, static_cast<const char*>(buf), length, 0);
+  int r = ::send(m_fileDesc, static_cast<const char*>(buf), length, 0);
+#ifdef _WIN32
+  if (r < 0) {
+    int wsa_err = WSAGetLastError();
+    switch (wsa_err) {
+      case WSAEWOULDBLOCK:  errno = EAGAIN;       break;
+      case WSAEINTR:        errno = EINTR;        break;
+      case WSAECONNRESET:   errno = ECONNRESET;   break;
+      case WSAECONNABORTED: errno = ECONNABORTED; break;
+      default:              errno = wsa_err;      break;
+    }
+  }
+#endif
+  return r;
 }
 
 } // namespace torrent
