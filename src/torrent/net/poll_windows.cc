@@ -6,12 +6,18 @@
 
 #include <cassert>
 #include <cerrno>
+#include <cinttypes>
 #include <cstdint>
 #include <map>
 #include <vector>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+// Increase FD_SETSIZE before including winsock2.h so select() can handle
+// more than 64 sockets (the Windows default).
+#ifndef FD_SETSIZE
+#define FD_SETSIZE 1024
 #endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -157,11 +163,21 @@ Poll::do_poll(int64_t timeout_usec) {
 
 int
 Poll::poll(int timeout_usec) {
+  // Build fd_sets for select().
+  // WSAPoll has a known bug on Windows where it doesn't report POLLWRNORM
+  // for non-blocking connect() completion. Use select() instead.
+  fd_set read_fds, write_fds, error_fds;
+  FD_ZERO(&read_fds);
+  FD_ZERO(&write_fds);
+  FD_ZERO(&error_fds);
+
   m_internal->m_poll_fds.clear();
   m_internal->m_poll_events.clear();
 
   m_internal->m_poll_fds.reserve(m_internal->m_table.size());
   m_internal->m_poll_events.reserve(m_internal->m_table.size());
+
+  bool has_any = false;
 
   for (const auto& [fd, poll_event] : m_internal->m_table) {
     if (poll_event == nullptr || poll_event->event == nullptr)
@@ -169,28 +185,62 @@ Poll::poll(int timeout_usec) {
     if (poll_event->mask == 0)
       continue;
 
+    SOCKET s = static_cast<SOCKET>(fd);
+
+    if (poll_event->mask & kRead)  { FD_SET(s, &read_fds);  has_any = true; }
+    if (poll_event->mask & kWrite) { FD_SET(s, &write_fds); has_any = true; }
+    if (poll_event->mask & kError) { FD_SET(s, &error_fds); has_any = true; }
+
+    // Store a WSAPOLLFD-like entry so process() can iterate over events.
+    // We reuse the WSAPOLLFD struct but only use fd and revents.
     WSAPOLLFD pfd{};
-    pfd.fd = static_cast<SOCKET>(fd);
-    pfd.events = to_wsa_events(poll_event->mask);
+    pfd.fd = s;
+    pfd.events = 0; // not used with select path
 
     m_internal->m_poll_fds.push_back(pfd);
     m_internal->m_poll_events.push_back(poll_event.get());
   }
 
-  if (m_internal->m_poll_fds.empty()) {
+  if (!has_any) {
     if (timeout_usec > 0)
       ::Sleep(static_cast<DWORD>(timeout_usec / 1000));
     return 0;
   }
 
-  int timeout_ms = timeout_usec < 0 ? -1 : static_cast<int>(timeout_usec / 1000);
-  int result = ::WSAPoll(m_internal->m_poll_fds.data(),
-                         static_cast<ULONG>(m_internal->m_poll_fds.size()),
-                         timeout_ms);
+  struct timeval tv;
+  struct timeval* tvp = nullptr;
+
+  if (timeout_usec >= 0) {
+    tv.tv_sec  = static_cast<long>(timeout_usec / 1000000);
+    tv.tv_usec = static_cast<long>(timeout_usec % 1000000);
+    tvp = &tv;
+  }
+
+  LT_LOG("select() called : fds:%zu timeout_usec:%" PRId64, m_internal->m_poll_fds.size(), (int64_t)timeout_usec);
+
+  int result = ::select(0, &read_fds, &write_fds, &error_fds, tvp);
 
   if (result == SOCKET_ERROR) {
     m_internal->m_last_error = ::WSAGetLastError();
+    LT_LOG("select() error : wsa_err:%d", m_internal->m_last_error);
     return -1;
+  }
+
+  LT_LOG("select() returned : ready:%d", result);
+
+  // Translate select() results back into revents for process().
+  for (size_t i = 0; i < m_internal->m_poll_fds.size(); ++i) {
+    SOCKET s = m_internal->m_poll_fds[i].fd;
+    short revents = 0;
+
+    if (FD_ISSET(s, &read_fds))  revents |= POLLRDNORM;
+    if (FD_ISSET(s, &write_fds)) revents |= POLLWRNORM;
+    if (FD_ISSET(s, &error_fds)) revents |= POLLERR;
+
+    if (revents != 0)
+      LT_LOG("select() fd:%zu revents:0x%x", (size_t)s, (unsigned)revents);
+
+    m_internal->m_poll_fds[i].revents = revents;
   }
 
   m_internal->m_last_error = 0;
