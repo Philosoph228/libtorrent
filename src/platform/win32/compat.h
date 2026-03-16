@@ -230,6 +230,17 @@ static inline int unlink(const char* path) {
   return _wunlink(wpath.c_str());
 }
 
+// rename: POSIX allows atomic replace of destination; Windows rename() does not.
+// Use MoveFileExW with MOVEFILE_REPLACE_EXISTING instead.
+static inline int rename(const char* oldpath, const char* newpath) {
+  if (MoveFileExW(lt_utf8_to_wide(oldpath).c_str(),
+                  lt_utf8_to_wide(newpath).c_str(),
+                  MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+    return 0;
+  errno = EACCES;
+  return -1;
+}
+
 // symlink: requires developer mode or admin on Windows
 static inline int symlink(const char* target, const char* linkpath) {
   if (CreateSymbolicLinkA(linkpath, target, 0))
