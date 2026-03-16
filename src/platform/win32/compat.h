@@ -236,16 +236,37 @@ static inline int unlink(const char* path) {
 static inline int lt_rename_utf8(const char* oldpath, const char* newpath) {
   std::wstring wsrc = lt_utf8_to_wide(oldpath);
   std::wstring wdst = lt_utf8_to_wide(newpath);
-  // Delete destination first in case it's open (MoveFileEx can't replace open files)
+
+  // Try MoveFileExW with MOVEFILE_REPLACE_EXISTING first (atomic on same volume).
+  if (MoveFileExW(wsrc.c_str(), wdst.c_str(),
+                  MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH | MOVEFILE_COPY_ALLOWED))
+    return 0;
+
+  // If that failed (e.g. destination is open by antivirus/Defender),
+  // try to delete the destination first, then retry the move.
+  // Retry up to 5 times with 50ms delay to handle transient locks.
   DWORD dstAttrs = GetFileAttributesW(wdst.c_str());
   if (dstAttrs != INVALID_FILE_ATTRIBUTES) {
     if (dstAttrs & FILE_ATTRIBUTE_READONLY)
       SetFileAttributesW(wdst.c_str(), dstAttrs & ~FILE_ATTRIBUTE_READONLY);
-    DeleteFileW(wdst.c_str());
+
+    for (int i = 0; i < 5; i++) {
+      if (DeleteFileW(wdst.c_str()))
+        break;
+      Sleep(50);
+    }
   }
+
   if (MoveFileExW(wsrc.c_str(), wdst.c_str(),
                   MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH | MOVEFILE_COPY_ALLOWED))
     return 0;
+
+  // Last resort: copy + delete source
+  if (CopyFileW(wsrc.c_str(), wdst.c_str(), FALSE)) {
+    DeleteFileW(wsrc.c_str());
+    return 0;
+  }
+
   // Map Win32 error to errno
   DWORD err = GetLastError();
   switch (err) {
