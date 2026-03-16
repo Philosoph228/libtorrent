@@ -1,6 +1,6 @@
 #include "config.h"
 
-#if defined(WINDOWS)
+#if defined(_WIN32)
 
 #include "torrent/net/poll.h"
 
@@ -42,8 +42,8 @@ to_wsa_events(uint32_t mask) {
     events |= POLLRDNORM;
   if (mask & kWrite)
     events |= POLLWRNORM;
-  if (mask & kError)
-    events |= POLLERR;
+  // Note: POLLERR must NOT be set in the events field for WSAPoll — it is
+  // only valid in revents.  Setting it causes WSAPoll to return WSAEINVAL.
 
   return events;
 }
@@ -399,4 +399,4 @@ Poll::remove_and_close(Event* event) {
 
 } // namespace torrent::net
 
-#endif // WINDOWS
+#endif // _WIN32

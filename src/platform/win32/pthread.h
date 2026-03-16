@@ -40,7 +40,21 @@ static unsigned __stdcall lt_pthread_start_thunk(void* raw) {
   if (data == nullptr)
     return 0;
 
-  data->fn(data->arg);
+  try {
+    data->fn(data->arg);
+  } catch (const std::exception& e) {
+    // Exceptions must not propagate out of a Windows thread function.
+    // Log to stderr so the user can see what went wrong.
+    fprintf(stderr, "lt_pthread_start_thunk: uncaught exception: %s\n", e.what());
+    fflush(stderr);
+    // Terminate the process cleanly rather than crashing via std::terminate.
+    ExitProcess(1);
+  } catch (...) {
+    fprintf(stderr, "lt_pthread_start_thunk: uncaught unknown exception\n");
+    fflush(stderr);
+    ExitProcess(1);
+  }
+
   delete data;
   return 0;
 }
