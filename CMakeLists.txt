@@ -4,11 +4,6 @@ project(libtorrent VERSION 0.16.8 LANGUAGES C CXX)
 
 include(GNUInstallDirs)
 
-# Add thirdparty dist packages to search path
-set(THIRDPARTY_DIST_DIR "C:/rakshasa/thirdparty/dist")
-file(GLOB _thirdparty_prefixes LIST_DIRECTORIES true "${THIRDPARTY_DIST_DIR}/*")
-list(APPEND CMAKE_PREFIX_PATH ${_thirdparty_prefixes})
-
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(LIBTORRENT_BUILD_TESTS "Build libtorrent tests" OFF)
 option(LIBTORRENT_ENABLE_INSTRUMENTATION "Enable instrumentation hooks" ON)
