@@ -37,18 +37,23 @@ check_cxx_source_compiles(
   USE_BUILTIN_POPCOUNT
 )
 
-check_cxx_source_compiles(
-  "#include <sys/epoll.h>\nint main() { int fd = epoll_create(100); return fd; }"
-  USE_EPOLL
-)
+if(WIN32)
+  set(USE_EPOLL 0)
+  set(USE_KQUEUE 0)
+else()
+  check_cxx_source_compiles(
+    "#include <sys/epoll.h>\nint main() { int fd = epoll_create(100); return fd; }"
+    USE_EPOLL
+  )
 
-check_cxx_source_compiles(
-  "#include <sys/time.h>\n#include <sys/event.h>\nint main() { int fd = kqueue(); return fd; }"
-  USE_KQUEUE
-)
+  check_cxx_source_compiles(
+    "#include <sys/time.h>\n#include <sys/event.h>\nint main() { int fd = kqueue(); return fd; }"
+    USE_KQUEUE
+  )
 
-if(NOT USE_EPOLL AND NOT USE_KQUEUE)
-  message(FATAL_ERROR "Neither epoll nor kqueue are available. libtorrent requires one of them.")
+  if(NOT USE_EPOLL AND NOT USE_KQUEUE)
+    message(FATAL_ERROR "Neither epoll nor kqueue are available. libtorrent requires one of them.")
+  endif()
 endif()
 
 check_cxx_source_compiles(
@@ -229,6 +234,10 @@ target_link_libraries(torrent
     OpenSSL::Crypto
     ${LIBTORRENT_ATOMIC_LIBS}
 )
+
+if(WIN32)
+  target_link_libraries(torrent PUBLIC ws2_32)
+endif()
 
 set(LIBTORRENT_CURRENT 38)
 set(LIBTORRENT_REVISION 0)
