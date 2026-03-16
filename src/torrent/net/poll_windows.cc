@@ -6,7 +6,6 @@
 
 #include <cassert>
 #include <cerrno>
-#include <cinttypes>
 #include <cstdint>
 #include <map>
 #include <vector>
@@ -216,7 +215,7 @@ Poll::poll(int timeout_usec) {
     tvp = &tv;
   }
 
-  LT_LOG("select() called : fds:%zu timeout_usec:%" PRId64, m_internal->m_poll_fds.size(), (int64_t)timeout_usec);
+  LT_LOG("select() called : fds:%zu timeout_usec:%ld", m_internal->m_poll_fds.size(), (long)(timeout_usec / 1000));
 
   int result = ::select(0, &read_fds, &write_fds, &error_fds, tvp);
 
@@ -226,7 +225,8 @@ Poll::poll(int timeout_usec) {
     return -1;
   }
 
-  LT_LOG("select() returned : ready:%d", result);
+  if (result > 0)
+    LT_LOG("select() returned : ready:%d", result);
 
   // Translate select() results back into revents for process().
   for (size_t i = 0; i < m_internal->m_poll_fds.size(); ++i) {

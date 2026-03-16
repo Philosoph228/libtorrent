@@ -298,10 +298,7 @@ static inline int lt_connect(SOCKET s, const struct sockaddr* name, int namelen)
     int wsa_err = WSAGetLastError();
     if (wsa_err == WSAEWOULDBLOCK || wsa_err == WSAEINPROGRESS) {
       errno = EINPROGRESS;
-      // Debug: log that we mapped WSAEWOULDBLOCK -> EINPROGRESS
-      // (visible in connection_fd log group)
     } else {
-      // Map common WSA errors to POSIX errno values
       switch (wsa_err) {
         case WSAECONNREFUSED: errno = ECONNREFUSED; break;
         case WSAENETUNREACH:  errno = ENETUNREACH;  break;
@@ -309,15 +306,9 @@ static inline int lt_connect(SOCKET s, const struct sockaddr* name, int namelen)
         case WSAENOBUFS:      errno = ENOBUFS;      break;
         default:              errno = wsa_err;      break;
       }
-      // OutputDebugStringA to see immediate connect failures
-      char dbg[128];
-      snprintf(dbg, sizeof(dbg), "lt_connect: immediate failure wsa_err=%d errno=%d\n", wsa_err, errno);
-      OutputDebugStringA(dbg);
     }
     return -1;
   }
-  // Immediate success (loopback or already connected)
-  OutputDebugStringA("lt_connect: immediate success\n");
   return 0;
 }
 #define connect(s, name, namelen) lt_connect((SOCKET)(s), name, namelen)
