@@ -30,6 +30,9 @@ AddressList::parse_address_compact(const std::string& s) {
 }
 
 // Move somewhere else.
+#ifdef _MSC_VER
+#pragma pack(push, 1)
+#endif
 struct [[gnu::packed]] SocketAddressCompact {
   SocketAddressCompact() = default;
   SocketAddressCompact(uint32_t a, uint16_t p) : addr(a), port(p) {}
@@ -69,6 +72,9 @@ struct [[gnu::packed]] SocketAddressCompact6 {
 
   const char*         c_str() const { return reinterpret_cast<const char*>(this); }
 };
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
 
 } // namespace torrent
 

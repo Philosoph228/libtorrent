@@ -15,6 +15,9 @@
 
 namespace torrent {
 
+#ifdef _MSC_VER
+#pragma pack(push, 1)
+#endif
 class [[gnu::packed]] socket_address_key {
 public:
   // TODO: Disable default ctor?
@@ -44,6 +47,9 @@ private:
     in6_addr m_addr6;
   };
 };
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
 
 inline bool
 socket_address_key::is_comparable_sockaddr(const sockaddr* sa) {

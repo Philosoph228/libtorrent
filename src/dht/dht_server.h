@@ -69,12 +69,18 @@ private:
   static constexpr int dht_error_protocol   = 203;
   static constexpr int dht_error_bad_method = 204;
 
+#ifdef _MSC_VER
+#pragma pack(push, 1)
+#endif
   struct [[gnu::packed]] compact_node_info {
     char                 _id[20];
     SocketAddressCompact _addr;
 
     HashString&          id()            { return *HashString::cast_from(_id); }
   };
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
 
   using packet_queue   = std::deque<std::shared_ptr<DhtTransactionPacket>>;
   using node_info_list = std::list<compact_node_info>;

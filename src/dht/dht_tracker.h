@@ -35,6 +35,9 @@ public:
 
 private:
   // We need to store the address as a bencoded string.
+#ifdef _MSC_VER
+#pragma pack(push, 1)
+#endif
   struct [[gnu::packed]] BencodeAddress {
     char                 header[2];
     SocketAddressCompact peer;
@@ -45,6 +48,9 @@ private:
 
     bool         empty() const   { return !peer.port; }
   };
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
 
   using PeerList = std::vector<BencodeAddress>;
 
