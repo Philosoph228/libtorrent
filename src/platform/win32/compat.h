@@ -136,9 +136,8 @@ static inline int lt_open_utf8(const char* path, int flags, ...) {
   }
   return _wopen(lt_utf8_to_wide(path).c_str(), flags, mode);
 }
-#ifndef open
-#define open lt_open_utf8
-#endif
+// NOTE: Do NOT #define open here — it would break std::fstream::open() calls.
+// Call lt_open_utf8() directly at POSIX open() call sites.
 
 // Intercept stat() to use _wstat64 so UTF-8 paths work on Windows.
 static inline int lt_stat_utf8(const char* path, struct stat* st) {
@@ -158,9 +157,9 @@ static inline int lt_stat_utf8(const char* path, struct stat* st) {
   }
   return r;
 }
-#ifndef stat
-#define stat(path, st) lt_stat_utf8(path, st)
-#endif
+// NOTE: Do NOT #define stat here — it would break local variables named 'stat'
+// (e.g. utils::FileStat stat; stat.update(...)).
+// Call lt_stat_utf8() directly at POSIX stat() call sites.
 
 #ifndef O_NONBLOCK
 #define O_NONBLOCK 0x8000
@@ -232,12 +231,30 @@ static inline int unlink(const char* path) {
 
 // rename: POSIX allows atomic replace of destination; Windows rename() does not.
 // Use MoveFileExW with MOVEFILE_REPLACE_EXISTING instead.
-static inline int rename(const char* oldpath, const char* newpath) {
-  if (MoveFileExW(lt_utf8_to_wide(oldpath).c_str(),
-                  lt_utf8_to_wide(newpath).c_str(),
-                  MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+// Call lt_rename_utf8() directly at call sites instead of using a macro,
+// to avoid breaking std::rename().
+static inline int lt_rename_utf8(const char* oldpath, const char* newpath) {
+  std::wstring wsrc = lt_utf8_to_wide(oldpath);
+  std::wstring wdst = lt_utf8_to_wide(newpath);
+  // Delete destination first in case it's open (MoveFileEx can't replace open files)
+  DWORD dstAttrs = GetFileAttributesW(wdst.c_str());
+  if (dstAttrs != INVALID_FILE_ATTRIBUTES) {
+    if (dstAttrs & FILE_ATTRIBUTE_READONLY)
+      SetFileAttributesW(wdst.c_str(), dstAttrs & ~FILE_ATTRIBUTE_READONLY);
+    DeleteFileW(wdst.c_str());
+  }
+  if (MoveFileExW(wsrc.c_str(), wdst.c_str(),
+                  MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH | MOVEFILE_COPY_ALLOWED))
     return 0;
-  errno = EACCES;
+  // Map Win32 error to errno
+  DWORD err = GetLastError();
+  switch (err) {
+    case ERROR_FILE_NOT_FOUND:
+    case ERROR_PATH_NOT_FOUND: errno = ENOENT; break;
+    case ERROR_ACCESS_DENIED:
+    case ERROR_SHARING_VIOLATION: errno = EACCES; break;
+    default: errno = EIO; break;
+  }
   return -1;
 }
 

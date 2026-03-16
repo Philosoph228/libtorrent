@@ -31,9 +31,17 @@ SocketFile::open(const std::string& path, int prot, int flags, mode_t mode) {
     throw internal_error("torrent::SocketFile::open(...) Tried to open file with no protection flags");
 
 #ifdef O_LARGEFILE
+#ifdef _WIN32
+  fd_type fd = ::lt_open_utf8(path.c_str(), flags | O_LARGEFILE, 0666);
+#else
   fd_type fd = ::open(path.c_str(), flags | O_LARGEFILE, mode);
+#endif
+#else
+#ifdef _WIN32
+  fd_type fd = ::lt_open_utf8(path.c_str(), flags, 0666);
 #else
   fd_type fd = ::open(path.c_str(), flags, mode);
+#endif
 #endif
 
   if (fd == invalid_fd)

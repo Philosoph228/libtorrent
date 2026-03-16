@@ -11,7 +11,13 @@ class FileStat {
 public:
 
   bool                update(int fd)                           { return fstat(fd, &m_stat) == 0; }
-  bool                update(const char* filename)             { return stat(filename, &m_stat) == 0; }
+  bool                update(const char* filename)             {
+#ifdef _WIN32
+    return lt_stat_utf8(filename, &m_stat) == 0;
+#else
+    return stat(filename, &m_stat) == 0;
+#endif
+  }
   bool                update(const std::string& filename)      { return update(filename.c_str()); }
 
   bool                update_link(const char* filename)        { return lstat(filename, &m_stat) == 0; }
