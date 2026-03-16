@@ -218,6 +218,18 @@ static inline int fdatasync(int fd) {
   return _commit(fd);
 }
 
+// unlink: delete a file by UTF-8 path
+// On Windows, files created with O_RDONLY (0444) get the read-only attribute,
+// which prevents deletion. Clear it first before unlinking.
+static inline int unlink(const char* path) {
+  std::wstring wpath = lt_utf8_to_wide(path);
+  // Clear read-only attribute so we can delete it
+  DWORD attrs = GetFileAttributesW(wpath.c_str());
+  if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_READONLY))
+    SetFileAttributesW(wpath.c_str(), attrs & ~FILE_ATTRIBUTE_READONLY);
+  return _wunlink(wpath.c_str());
+}
+
 // symlink: requires developer mode or admin on Windows
 static inline int symlink(const char* target, const char* linkpath) {
   if (CreateSymbolicLinkA(linkpath, target, 0))
